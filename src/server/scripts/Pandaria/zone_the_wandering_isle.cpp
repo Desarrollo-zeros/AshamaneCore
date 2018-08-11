@@ -29,9 +29,11 @@
 #include "Player.h"
 #include "Log.h"
 
+
+
 enum CaveOfMeditationSpells
 {
-    SPELL_MEDITATION_TIMER_BAR  = 116421,
+    SPELL_MEDITATION_TIMER_BAR = 116421,
     QUEST_THE_WAY_OF_THE_TUSHUI = 29414
 };
 
@@ -52,6 +54,57 @@ public:
             return true;
         }
         return false;
+    }
+};
+
+
+
+enum QuestCasterSpell
+{
+    QUEST_MISION_HIERRO = 29524,
+    QUEST_MISION_LEÑA = 29418,
+    QUEST_MISION_ESPIRITU = 29678,
+    QUEST_MISION_SABIDURIA = 29790
+};
+enum spellQuestFase
+{
+    UPDATE_ZONE_AREA = 93425
+};
+
+class on_fase_mision : public PlayerScript
+{
+public:
+    on_fase_mision() : PlayerScript("on_fase_mision") { }
+
+    void OnQuestComplete(Player* player, Quest const* quest) override {
+        if (player->GetQuestStatus(QUEST_MISION_HIERRO) == QUEST_STATUS_COMPLETE ||
+            player->GetQuestStatus(QUEST_MISION_LEÑA) == QUEST_STATUS_COMPLETE ||
+            player->GetQuestStatus(QUEST_MISION_ESPIRITU) == QUEST_STATUS_COMPLETE) {
+            player->CastSpell(player, uint32(UPDATE_ZONE_AREA), true);
+            return;
+        }
+        return;
+    }
+
+    void OnQuestAccept(Player* player, const Quest* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_MISION_SABIDURIA) {
+            PhasingHandler::SetAlwaysVisible(player->GetPhaseShift(), true);
+        }       
+    }
+
+
+    void OnUpdateArea(Player* player, uint32 newArea, uint32 oldArea) override {
+
+        if (newArea == 5832 && player->GetQuestStatus(QUEST_MISION_SABIDURIA) != QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_STATUS_COMPLETE) != QUEST_STATUS_NONE && player->GetMapId() == 860) {
+            PhasingHandler::SetAlwaysVisible(player->GetPhaseShift(), true);
+            return;
+        }
+        else {
+            PhasingHandler::SetAlwaysVisible(player->GetPhaseShift(), false);
+            return;
+        }
+        return;
     }
 };
 
@@ -2573,4 +2626,5 @@ void AddSC_the_wandering_isle()
     new spell_pandaren_faction_choice();
     new spell_faction_choice_trigger();
     new spell_balloon_exit_timer();
+    new on_fase_mision();
 }
