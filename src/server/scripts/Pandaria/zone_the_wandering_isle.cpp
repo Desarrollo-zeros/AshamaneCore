@@ -62,7 +62,7 @@ public:
 enum QuestCasterSpell
 {
     QUEST_MISION_HIERRO = 29524,
-    QUEST_MISION_LEÑA = 29418,
+    QUEST_MISION_LENA = 29418,
     QUEST_MISION_ESPIRITU = 29678,
     QUEST_MISION_SABIDURIA = 29790
 };
@@ -78,7 +78,7 @@ public:
 
     void OnQuestComplete(Player* player, Quest const* quest) override {
         if (player->GetQuestStatus(QUEST_MISION_HIERRO) == QUEST_STATUS_COMPLETE ||
-            player->GetQuestStatus(QUEST_MISION_LEÑA) == QUEST_STATUS_COMPLETE ||
+            player->GetQuestStatus(QUEST_MISION_LENA) == QUEST_STATUS_COMPLETE ||
             player->GetQuestStatus(QUEST_MISION_ESPIRITU) == QUEST_STATUS_COMPLETE) {
             player->CastSpell(player, uint32(UPDATE_ZONE_AREA), true);
             return;
