@@ -90,13 +90,15 @@ public:
     {
         if (quest->GetQuestId() == QUEST_MISION_SABIDURIA) {
             PhasingHandler::SetAlwaysVisible(player->GetPhaseShift(), true);
+			return;
         }       
+		return;
     }
 
 
     void OnUpdateArea(Player* player, uint32 newArea, uint32 oldArea) override {
 
-        if (newArea == 5832 && player->GetQuestStatus(QUEST_MISION_SABIDURIA) != QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_STATUS_COMPLETE) != QUEST_STATUS_NONE && player->GetMapId() == 860) {
+        if (newArea == 5832 && player->GetQuestStatus(QUEST_MISION_SABIDURIA) != QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_MISION_SABIDURIA) == QUEST_STATUS_COMPLETE && player->GetMapId() == 860) {
             PhasingHandler::SetAlwaysVisible(player->GetPhaseShift(), true);
             return;
         }
