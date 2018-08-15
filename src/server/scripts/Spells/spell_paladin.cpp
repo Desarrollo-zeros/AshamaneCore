@@ -704,15 +704,12 @@ class spell_pal_eye_for_an_eye : public AuraScript
 
     void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        PreventDefaultAction();
-        Unit* caster = GetCaster();
-
-        caster->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, true);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, true);
     }
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1035,41 +1032,24 @@ class spell_pal_justicars_vengeance : public SpellScript
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
-
-        bool noHpCost = false;
-        uint8 hp = caster->GetPower(POWER_HOLY_POWER);
-        uint8 hpCost = 5;
-        int32 damage = GetHitDamage() * 2;
+        if (!target)
+            return;
 
         if (target->HasAuraType(SPELL_AURA_MOD_STUN) || target->HasAuraWithMechanic(1 << MECHANIC_STUN))
         {
+            int32 damage = GetHitDamage();
+            AddPct(damage, GetEffectInfo(EFFECT_1)->BasePoints);
+
             SetHitDamage(damage);
             SetEffectValue(damage);
         }
-        
+
         if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA))
-        {
             caster->RemoveAurasDueToSpell(SPELL_PALADIN_DIVINE_PURPOSE_RET_AURA);
-            noHpCost = true;
-        }
-
-        if (caster->HasAura(SPELL_PALADIN_THE_FIRES_OF_JUSTICE) && !noHpCost)
-        {
-            caster->RemoveAurasDueToSpell(SPELL_PALADIN_THE_FIRES_OF_JUSTICE);
-            hpCost -= 1;
-        }
-
-        if (!noHpCost)
-        {
-            hp -= hpCost;
-            caster->SetPower(POWER_HOLY_POWER, hp);
-        }
 
         if (caster->HasAura(SPELL_PALADIN_FIST_OF_JUSTICE_RETRI))
-        {
             if (caster->GetSpellHistory()->HasCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE))
-                caster->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE, -12.5 * IN_MILLISECONDS);
-        }
+                caster->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE, -10 * IN_MILLISECONDS);
     }
 
     void Register() override
@@ -1077,7 +1057,6 @@ class spell_pal_justicars_vengeance : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_pal_justicars_vengeance::HandleHit, EFFECT_0, SPELL_EFFECT_HEALTH_LEECH);
     }
 };
-
 
 // 213757 - Execution Sentence
 class spell_pal_execute_sentence : public SpellScript
